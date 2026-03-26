@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace TaskFlow.Domain.Entities;
 
-namespace TaskFlow.Domain
+public class Comment
 {
-    internal class Comment
-    {
-    }
+    public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid TaskItemId { get; private set; }
+    public Guid AuthorId { get; private set; }
+    public string Content { get; private set; } = default!;
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+
+    private Comment() { }
+
+    public static Comment Create(Guid taskItemId, Guid authorId, string content) =>
+        new() { TaskItemId = taskItemId, AuthorId = authorId, Content = content };
 }
