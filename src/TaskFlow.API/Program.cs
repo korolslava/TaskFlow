@@ -4,6 +4,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TaskFlow.Infrastructure.Auth;
 using TaskFlow.Infrastructure.Persistence;
+using TaskFlow.Application.Common.Behaviors;
+using MediatR;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +37,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(
+        typeof(ValidationBehavior<,>).Assembly);
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>),
+                   typeof(ValidationBehavior<,>));
+});
+
+builder.Services.AddValidatorsFromAssembly(
+    typeof(ValidationBehavior<,>).Assembly);
 
 var app = builder.Build();
 
