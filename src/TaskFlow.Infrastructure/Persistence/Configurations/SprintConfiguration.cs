@@ -16,6 +16,6 @@ public class SprintConfiguration : IEntityTypeConfiguration<Sprint>
         builder.HasMany(s => s.Tasks)
                .WithOne()
                .HasForeignKey(t => t.SprintId)
-               .OnDelete(DeleteBehavior.SetNull);
+               .OnDelete(DeleteBehavior.NoAction);
     }
 }

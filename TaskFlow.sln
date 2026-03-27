@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11619.145 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7B002DB2-19B3-4FFF-B086-C3D42B836D38}"
 EndProject
@@ -19,13 +19,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskFlow.UnitTests", "tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskFlow.IntegrationTests", "tests\TaskFlow.IntegrationTests\TaskFlow.IntegrationTests.csproj", "{B827E9A5-C915-4F5E-9D2A-D3733C3047BC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E9D05A64-C6E5-4D7A-A35D-07B50244C992}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{561E0805-D167-4892-BE40-944BF4967A70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -53,6 +55,9 @@ Global
 		{B827E9A5-C915-4F5E-9D2A-D3733C3047BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B827E9A5-C915-4F5E-9D2A-D3733C3047BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{561E0805-D167-4892-BE40-944BF4967A70} = {7B002DB2-19B3-4FFF-B086-C3D42B836D38}
 		{12951B36-DCFE-45E9-8689-42F8D8FB6B4C} = {7B002DB2-19B3-4FFF-B086-C3D42B836D38}
@@ -60,5 +65,8 @@ Global
 		{0CBB8A2A-EEAD-49D1-A89C-7413308184D2} = {7B002DB2-19B3-4FFF-B086-C3D42B836D38}
 		{832B42C3-6A3E-4B0E-9143-2F5BBC007650} = {973C1CAB-F1C0-42B6-A46D-5BE86848AB3E}
 		{B827E9A5-C915-4F5E-9D2A-D3733C3047BC} = {973C1CAB-F1C0-42B6-A46D-5BE86848AB3E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {92AB6675-C3A7-46BC-8412-93952E540596}
 	EndGlobalSection
 EndGlobal
