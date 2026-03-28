@@ -39,8 +39,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 builder.Services.AddMediatR(cfg => {
-    cfg.RegisterServicesFromAssembly(
-        typeof(ValidationBehavior<,>).Assembly);
+    cfg.RegisterServicesFromAssemblies(
+        typeof(ValidationBehavior<,>).Assembly,
+        typeof(TaskFlow.Domain.Events.DomainEvent).Assembly);
     cfg.AddBehavior(typeof(IPipelineBehavior<,>),
                    typeof(ValidationBehavior<,>));
 });
