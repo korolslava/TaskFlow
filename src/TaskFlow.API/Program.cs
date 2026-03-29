@@ -1,12 +1,14 @@
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TaskFlow.API.Authorization;
+using TaskFlow.Application.Common.Behaviors;
 using TaskFlow.Infrastructure.Auth;
 using TaskFlow.Infrastructure.Persistence;
-using TaskFlow.Application.Common.Behaviors;
-using MediatR;
-using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +50,27 @@ builder.Services.AddMediatR(cfg => {
 
 builder.Services.AddValidatorsFromAssembly(
     typeof(ValidationBehavior<,>).Assembly);
+
+builder.Services.AddScoped<IAuthorizationHandler, WorkspaceAuthHandler>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("WorkspaceViewer", policy =>
+        policy.Requirements.Add(
+            new WorkspaceRequirement(WorkspaceRole.Viewer)));
+
+    options.AddPolicy("WorkspaceMember", policy =>
+        policy.Requirements.Add(
+            new WorkspaceRequirement(WorkspaceRole.Member)));
+
+    options.AddPolicy("WorkspaceAdmin", policy =>
+        policy.Requirements.Add(
+            new WorkspaceRequirement(WorkspaceRole.Admin)));
+
+    options.AddPolicy("WorkspaceOwner", policy =>
+        policy.Requirements.Add(
+            new WorkspaceRequirement(WorkspaceRole.Owner)));
+});
 
 var app = builder.Build();
 
