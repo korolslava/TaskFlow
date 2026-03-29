@@ -36,23 +36,13 @@ public class WorkspacesController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{id:guid}/members")]
+    [Authorize(Policy = "WorkspaceAdmin")]
     public async Task<IActionResult> InviteMember(
     Guid id, InviteMemberRequest req)
     {
-        try
-        {
-            var result = await mediator.Send(
-                new InviteMemberCommand(id, CurrentUserId, req.Email, req.Role));
-            return Ok(result);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var result = await mediator.Send(
+            new InviteMemberCommand(id, CurrentUserId, req.Email, req.Role));
+        return Ok(result);
     }
 }
 
