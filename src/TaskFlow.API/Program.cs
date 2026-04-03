@@ -1,3 +1,6 @@
+using Hangfire;
+using Hangfire.SqlServer;
+using TaskFlow.Infrastructure.BackgroundJobs;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -59,6 +62,13 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSignalR();
 
+builder.Services.AddHangfire(cfg => cfg
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssemblies(
         typeof(ValidationBehavior<,>).Assembly,
@@ -104,4 +114,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<BoardHub>("/hubs/board");
+app.UseHangfireDashboard("/hangfire");
+RecurringJob.AddOrUpdate<OverdueTasksJob>(
+    "overdue-tasks",
+    job => job.ExecuteAsync(),
+    "0 8 * * *");
 app.Run();
