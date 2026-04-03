@@ -32,4 +32,5 @@ public class TaskItem
     public void AssignTo(Guid? userId) => AssigneeId = userId;
     public void SetPriority(TaskPriority priority) => Priority = priority;
     public void SetStoryPoints(int points) => StoryPoints = points;
+    public void AssignToSprint(Guid? sprintId) => SprintId = sprintId;
 }
