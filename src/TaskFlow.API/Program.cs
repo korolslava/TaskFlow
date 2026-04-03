@@ -101,6 +101,8 @@ builder.Services.AddAuthorization(options =>
             new WorkspaceRequirement(WorkspaceRole.Owner)));
 });
 
+builder.Services.AddScoped<MentionEmailJob>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
