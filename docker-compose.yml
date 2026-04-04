@@ -9,9 +9,30 @@ services:
     volumes:
       - taskflow_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "TaskFlow_Pass123", "-Q", "SELECT 1"]
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd",
+             "-S", "localhost", "-U", "sa",
+             "-P", "TaskFlow_Pass123", "-Q", "SELECT 1"]
       interval: 10s
       retries: 5
+      start_period: 30s
+
+  api:
+    build:
+      context: .
+      dockerfile: src/TaskFlow.API/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=TaskFlowDb;User Id=sa;Password=TaskFlow_Pass123;TrustServerCertificate=True
+      - Jwt__Secret=taskflow-super-secret-key-min-32-chars!!
+      - Jwt__Issuer=TaskFlow.API
+      - Jwt__Audience=TaskFlow.Client
+      - Jwt__AccessTokenExpiryMinutes=15
+      - Jwt__RefreshTokenExpiryDays=7
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   taskflow_data:
