@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using DotNet.Testcontainers.Builders;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +14,16 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>,
     IAsyncLifetime
 {
     private readonly MsSqlContainer _sqlContainer = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-        .WithPassword("TaskFlow_Test_Pass123!")
-        .Build();
+    .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+    .WithPassword("TaskFlow_Test_Pass123!")
+    .WithWaitStrategy(Wait.ForUnixContainer()
+        .UntilCommandIsCompleted(
+            "/opt/mssql-tools/bin/sqlcmd",
+            "-S", "localhost",
+            "-U", "sa",
+            "-P", "TaskFlow_Test_Pass123!",
+            "-Q", "SELECT 1"))
+    .Build();
 
     public async Task InitializeAsync()
     {
