@@ -18,4 +18,6 @@ RUN dotnet publish "src/TaskFlow.API/TaskFlow.API.csproj" -c Release -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "TaskFlow.API.dll"]
