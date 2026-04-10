@@ -27,7 +27,6 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "Project Management Platform with real-time collaboration"
     });
-
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -37,7 +36,6 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Description = "Enter: Bearer {your token}"
     });
-
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -74,14 +72,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
         };
-
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
                 var accessToken = context.Request.Query["access_token"];
                 var path = context.HttpContext.Request.Path;
-
                 if (!string.IsNullOrEmpty(accessToken) &&
                     path.StartsWithSegments("/hubs/board"))
                 {
@@ -92,10 +88,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
-
-builder.Services.AddSignalR();
-
 builder.Services.AddHangfire(cfg => cfg
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
@@ -103,7 +95,10 @@ builder.Services.AddHangfire(cfg => cfg
     .UseSqlServerStorage(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddMediatR(cfg => {
+builder.Services.AddHangfireServer();
+
+builder.Services.AddMediatR(cfg =>
+{
     cfg.RegisterServicesFromAssemblies(
         typeof(ValidationBehavior<,>).Assembly,
         typeof(TaskFlow.Domain.Events.DomainEvent).Assembly);
@@ -119,23 +114,18 @@ builder.Services.AddScoped<IAuthorizationHandler, WorkspaceAuthHandler>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("WorkspaceViewer", policy =>
-        policy.Requirements.Add(
-            new WorkspaceRequirement(WorkspaceRole.Viewer)));
-
+        policy.Requirements.Add(new WorkspaceRequirement(WorkspaceRole.Viewer)));
     options.AddPolicy("WorkspaceMember", policy =>
-        policy.Requirements.Add(
-            new WorkspaceRequirement(WorkspaceRole.Member)));
-
+        policy.Requirements.Add(new WorkspaceRequirement(WorkspaceRole.Member)));
     options.AddPolicy("WorkspaceAdmin", policy =>
-        policy.Requirements.Add(
-            new WorkspaceRequirement(WorkspaceRole.Admin)));
-
+        policy.Requirements.Add(new WorkspaceRequirement(WorkspaceRole.Admin)));
     options.AddPolicy("WorkspaceOwner", policy =>
-        policy.Requirements.Add(
-            new WorkspaceRequirement(WorkspaceRole.Owner)));
+        policy.Requirements.Add(new WorkspaceRequirement(WorkspaceRole.Owner)));
 });
 
 builder.Services.AddScoped<MentionEmailJob>();
+builder.Services.AddScoped<OverdueTasksJob>();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -161,14 +151,23 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.MapHub<BoardHub>("/hubs/board");
 app.UseHangfireDashboard("/hangfire");
-RecurringJob.AddOrUpdate<OverdueTasksJob>(
-    "overdue-tasks",
-    job => job.ExecuteAsync(),
-    "0 8 * * *");
+
+try
+{
+    RecurringJob.AddOrUpdate<OverdueTasksJob>(
+        "overdue-tasks",
+        job => job.ExecuteAsync(),
+        "0 8 * * *");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Hangfire recurring job registration failed: {ex.Message}");
+}
+
 app.Run();
